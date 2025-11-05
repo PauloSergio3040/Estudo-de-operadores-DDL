@@ -1,202 +1,167 @@
+-- ddl criando tabela
+create table funcionario   
+(		 
+    matricula int not null primary key auto_increment,      
+    nome varchar(50) not null,      
+    sobrenome varchar(50) not null,      
+    endereco varchar(50),      
+    cidade varchar(50),      
+    pais varchar(25),      
+    data_nasc datetime	 
+);
 
--- DDL CRIANDO TABELA
-CREATE TABLE funcionario   
-(		 matricula INT not null primary key auto_increment,      
-	    nome      VARCHAR(50) NOT NULL,      
-		 sobrenome VARCHAR(50) NOT NULL,      
-		 endereco  VARCHAR(50),      
-		 cidade    VARCHAR(50),      
-		 pais      VARCHAR(25),      
-		 data_nasc DATETIME	 
-		);
-
--- DDL CRIANDO TABELA COM CHAVE ESTRANGEIRA
-CREATE TABLE salario   
+-- ddl criando tabela com chave estrangeira
+create table salario   
 (      
-	matricula INT not null,      
-	salario   DECIMAL(10,2) NOT NULL, 
-    FOREIGN KEY(matricula) REFERENCES funcionario(matricula)
-  );
+    matricula int not null,      
+    salario decimal(10,2) not null, 
+    foreign key(matricula) references funcionario(matricula)
+);
 
--
--- DDL CRIACAO DE TABELA COM CHAVE PRIMARIA
-CREATE TABLE audit_salario   
-	(  
-		transacao int not null auto_increment,    
-		matricula  INT NOT NULL,      
-		data_trans DATETIME NOT NULL,      
-		sal_antigo DECIMAL(10,2),      
-		sal_novo   DECIMAL(10,2), 
-		Usuario    varchar(20)not null,
-		primary key(transacao),
-		FOREIGN KEY(matricula) REFERENCES funcionario(matricula) 
-		);
+-- ddl criacao de tabela com chave primaria
+create table audit_salario   
+(  
+    transacao int not null auto_increment,    
+    matricula int not null,      
+    data_trans datetime not null,      
+    sal_antigo decimal(10,2),      
+    sal_novo decimal(10,2), 
+    usuario varchar(20) not null,
+    primary key(transacao),
+    foreign key(matricula) references funcionario(matricula) 
+);
 
--- DDL CRIACAO DE INDEX
- CREATE INDEX ix_func1   ON funcionario(data_nasc);
+-- ddl criacao de index
+create index ix_func1 on funcionario(data_nasc);
+
+-- ddl criacao de index
+create index ix_func2 on funcionario(cidade,pais);
+
+-- adicionando novo campo na tabela 
+alter table funcionario add genero char(1);
  
+-- select * from funcionario
 
--- DDL CRIACAO DE INDEX
- CREATE INDEX ix_func2   ON funcionario(cidade,pais);
+-- renomeando campo/colunas da tabela
+alter table funcionario change genero sexo char(1);
 
+-- retornando situacao anterior
+alter table funcionario change sexo genero char(1);
 
- -- Adicionando novo campo na tabela 
-ALTER TABLE funcionario ADD genero CHAR(1);
- 
--- SELECT * FROM funcionario
+-- renomeando tabela
+rename table funcionario to pessoa;
 
- -- Renomeando campo/colunas da tabela
- alter table funcionario change genero sexo char(1);
- -- Retornando situacao anterior
- alter table funcionario change sexo genero char(1);
+-- retornando situacao anterior
+rename table pessoa to funcionario;
 
- 
- -- Renomeando  tabela
- rename table funcionario to pessoa;
- --  retornando situaacao anterior
- rename table pessoa to funcionario;
- 
+-- ddl para adicionar coluna na tab senso 
+alter table senso add id int;
 
--- DDL PARA ADICIONAR COLUNA NA TAB SENSO 
-  ALTER TABLE SENSO ADD ID INT;
+-- ddl para adicionar chave primaria na tab senso auto_increment 
+alter table senso modify column id int auto_increment primary key;
 
+-- select * from senso;
 
--- DDL PARA ADICIONAR CHAVE PRIMARIA NA TAB SENSO AUTO_INCREMENT 
-ALTER TABLE SENSO MODIFY COLUMN ID INT AUTO_INCREMENT PRIMARY KEY;
+-- alterando tipo da coluna
+alter table funcionario modify column endereco varchar(30);
 
--- SELECT * FROM SENSO;
+-- excluindo campo da coluna
+alter table funcionario drop column genero; 
 
--- Alterando tipo da coluna
-ALTER TABLE funcionario MODIFY COLUMN endereco VARCHAR(30);
+-- alterar engine da tabela
+alter table senso
+engine = myisam;
 
-  
--- Excluindo campo da coluna
-ALTER TABLE funcionario DROP COLUMN genero; 
- 
+-- ddl criacao de database
+create database teste;
 
-  
--- alterar Engine da tabela
-ALTER TABLE senso
-ENGINE = MyIsam;
+-- excluindo database
+drop database teste; 
 
- 
--- DDL CRIACAO DE DATABASE
-CREATE DATABASE TESTE;
+-- excluindo table
+drop table salario;
 
+-- criacao de view
+create view v_funcionario as
+select * from funcionarios;
 
--- Excluindo database
-DROP DATABASE TESTE; 
+-- modificando view de view
+alter view v_funcionario as 
+select id, nome from funcionarios;
 
+-- excluindo view
+drop view v_funcionario; 
 
--- Excluindo table
-DROP TABLE SALARIO
+-- excluindo index
+drop index ix_func1 on funcionario; 
 
+-- criando index
+create index ix_func1 on funcionarios (nome);
 
--- CRIACAO DE VIEW
-CREATE VIEW v_funcionario
-	AS
-	SELECT * FROM FUNCIONARIOS
+-- criando procedure
+delimiter $$
+create procedure proc_quadrado (inout numero int)
+begin
+	set numero = numero * numero;
+end $$
+delimiter ;
 
+-- executando procedure
+set @valor = 5;
+call proc_quadrado (@valor);
+select @valor;
 
+-- excluindo procedure 
+drop procedure proc_quadrado; 
 
--- MODIFICANDO VIEW DE VIEW
--- ALTER VIEW
-	ALTER VIEW v_funcionario
-	AS 
-	SELECT ID,NOME FROM FUNCIONARIOS;
+-- excluindo função
+drop function func_salario;
 
+-- excluindo trigger
+drop trigger trig_func_salario;
 
--- 
--- Excluindo VIEW
-DROP VIEW v_funcionario; 
+-- ddl truncate
+truncate table senso;
 
+-- ddl truncate verificando registros
+select * from funcionarios;
 
--- Excluindo index
-DROP index ix_func1 ON FUNCIONARIO; 
-
-
--- CRIANDO INDEX
-CREATE INDEX IX_FUNC1 ON FUNCIONARIOS (NOME)
-
-
--- CRIANDO PROCEDURvE procedure
-DELIMITER $$
-CREATE PROCEDURE proc_quadrado (INOUT numero INT)
-BEGIN
-	SET numero = numero * numero;
-END $$
-DELIMITER ;
-
-
--- EXECUTANDO PROCEDURE
-SET @valor = 5;
-CALL proc_quadrado (@valor);
-SELECT @valor;
-
-
--- EXCLUINDO PROCEDURE 
-DROP PROCEDURE proc_quadrado; 
-
-
--- Excluindo Função
-DROP function func_salario;
-
-
--- Excluindo Trigger
-DROP trigger trig_func_salario;
-
-
--- DDL TRUNCATE
-TRUNCATE TABLE	 SENSO;
-
--- DDL TRUNCATE VERIFICANDO REGISTROS
-
-SELECT * FROM FUNCIONARIOS;
-
-
--- CRIANDO TABELA TEMPORARIA BK EM TABELA TEMPORARIA
-CREATE TEMPORARY TABLE TMP_FUNCIONARIOS
+-- criando tabela temporaria bk em tabela temporaria
+create temporary table tmp_funcionarios
 (
- ID INT,
- NOME VARCHAR(50),
- SALARIO DECIMAL(10,2),
- SETOR VARCHAR(30)
- )
+ id int,
+ nome varchar(50),
+ salario decimal(10,2),
+ setor varchar(30)
+);
 
+-- fazendo bk na tabela temporaria
+insert into tmp_funcionarios
+select * from funcionarios;
 
--- FAZENDO BK NA TABELAS TEMPORARIA
-INSERT INTO TMP_FUNCIONARIOS
-SELECT * FROM FUNCIONARIOS
-
-
--- VERIFACANDO BK NA TABELA TEMPORARIA
-SELECT * FROM TMP_FUNCIONARIOS
-
+-- verificando bk na tabela temporaria
+select * from tmp_funcionarios;
  
--- TRUNCATE NA TABELA FUNCIONARIOS --APAGANDO REGISTROS
-TRUNCATE FUNCIONARIOS;
+-- truncate na tabela funcionarios --apagando registros
+truncate funcionarios;
 
-SELECT * FROM FUNCIONARIOS;
+select * from funcionarios;
 
+-- recuperar dados da tabela temp
+-- desativar auto increment da tabela funcionarios
+alter table funcionarios change id id int unsigned not null;
 
--- RECUPERAR DADOS DA TABELA TEMP
--- DESATIVAR AUTO INCREMENT DA TABELA FUNCIONARIOS
-ALTER TABLE FUNCIONARIOS CHANGE ID ID INT UNSIGNED NOT NULL;
+-- recuperando dados do bk temporario
+insert into funcionarios
+select * from tmp_funcionarios;
 
+select * from funcionarios;
 
--- RECUPERANDO DADOS DO BK TEMPORARIO
-INSERT INTO FUNCIONARIOS
-SELECT * FROM  TMP_FUNCIONARIOS
+-- retornando auto increment
+alter table funcionarios modify column id int auto_increment;
 
-SELECT * FROM FUNCIONARIOS;
+-- testando auto increment
+insert into funcionarios (nome,salario) values ('leopoldo',1000);
 
--- RETORNANDO AUTO INCREMENT
-ALTER TABLE FUNCIONARIOS MODIFY COLUMN ID INT AUTO_INCREMENT;
-
-
--- TESTANDO AUTO INCREMENT
-INSERT INTO funcionarios (nome,salario) VALUES ('Leopoldo',1000);
-
--- EVIDENCIA
-SELECT * FROM funcionarios
-
+-- evidencia
+select * from funcionarios;
